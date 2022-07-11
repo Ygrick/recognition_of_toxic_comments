@@ -8,9 +8,9 @@ class Dataset(torch.utils.data.Dataset):
     def __init__(self, df):
         tokenizer = BertTokenizer.from_pretrained('bert-base-cased')
         self.labels = list(df['toxic'])
-        self.texts = [tokenizer(text,
-                               padding='max_length', max_length = 512, truncation=True,
-                                return_tensors="pt") for text in df['comment']]
+        self.texts = [tokenizer(text, padding='max_length', max_length = 512, truncation=True, return_tensors="pt")
+                      for text in df['comment']
+                      ]
 
     def classes(self):
         return self.labels

@@ -7,7 +7,6 @@ from transformers import BertTokenizer
 
 def inference(df, model):
     tokenizer = BertTokenizer.from_pretrained('bert-base-cased')
-    labels = list(df['class_true'])
     texts = [
         tokenizer(text, padding='max_length', max_length=512, truncation=True, return_tensors="pt")
         for text in df['text']

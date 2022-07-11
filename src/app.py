@@ -1,26 +1,25 @@
 import pandas as pd
 import numpy as np
-import torch
-from transformers import BertTokenizer
-from train_and_eval_model import training, evaluate
 from BertClassifier import BertClassifier
-from test_model import predict_bert
 from lemmatize import lemmatize
+from MyModel import MyModel
 
 
-tokenizer = BertTokenizer.from_pretrained('bert-base-cased')
 print('Обучить модель - 0')
 print('Загрузить модель - 1')
 input_chose = int(input())
 
+# training model
 if input_chose == 0:
     # uploading dataset
-    df = pd.read_csv('/../data/data_train.csv').drop('Unnamed: 0', axis=1)
-    df_test = pd.read_csv('/../data/data_test_public.csv').drop('Unnamed: 0', axis=1)
+    df = pd.read_csv('src/../data/data_train.csv').drop('Unnamed: 0', axis=1)
+    df_test = pd.read_csv('src/../data/data_test_public.csv').drop('Unnamed: 0', axis=1)
 
     # cleaning dataset
     df_test = df.dropna().reset_index(drop=True)
     df = df.dropna().reset_index(drop=True)
+    df_test['toxic'] = pd.to_numeric(df_test['toxic'], downcast='integer')
+    df['toxic'] = pd.to_numeric(df['toxic'], downcast='integer')
 
     # lemmatizing dataset
     df_test['comment'] = df_test['comment'].apply(lambda x: ' '.join(lemmatize(x)))
@@ -31,22 +30,22 @@ if input_chose == 0:
     print(len(df_train), len(df_val), len(df_test))
 
     # initialization of model
-    EPOCHS = 7
-    model = BertClassifier()
-    LR = 1e-6
+    model = MyModel()
+    Bert = BertClassifier()
+    model.initialization(Bert)
+    model.training(df_train, df_val, lr=1e-6, epochs=7)
+    model.saving()
+    model.evaluate(df_test)
 
-    training(model, df_train, df_val, LR, EPOCHS)
-    torch.save(model, 'src/../models/model_toxic_comment.pt')
-    evaluate(model, df_test)
+    # для создания датафрейма: [text, class_true, class_prediction, probabilities] (инференс модели)
+    # df_inference = inference(df_test.rename(columns={"comment": "text", "toxic": "class_true"}), model)
 
+# uploading model
 elif input_chose == 1:
-    model = torch.load('src/../models/model_toxic_comment.pt', map_location='cpu')
-    model.eval()
-
-else:
-    pass
+    model = MyModel()
+    model.loading()
 
 # manual testing of the model
 while True:
     print("Введите предложение: ")
-    predict_bert(input(), model, tokenizer)
+    model.predict_bert(input())
