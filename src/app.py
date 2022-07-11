@@ -48,4 +48,5 @@ elif input_chose == 1:
 # manual testing of the model
 while True:
     print("Введите предложение: ")
-    model.predict_bert(input())
+    input_text = input()
+    model.predict_bert(' '.join(lemmatize(input_text)))

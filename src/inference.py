@@ -6,6 +6,12 @@ from transformers import BertTokenizer
 
 
 def inference(df, model):
+    """
+    Метод для преобразования датафрейма к виду [text, class_true, class_prediction, probabilities](инференс)
+    :param df: исходный датафрейм
+    :param model: модель, которая будет делать прогнозы для заполнения столбцов [class_prediction, probabilities]
+    :return: датафрейм нужного вида
+    """
     tokenizer = BertTokenizer.from_pretrained('bert-base-cased')
     texts = [
         tokenizer(text, padding='max_length', max_length=512, truncation=True, return_tensors="pt")

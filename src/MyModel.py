@@ -9,19 +9,41 @@ from tqdm import tqdm
 
 class MyModel:
     def __init__(self):
+        """
+        метод инициализации токенизатора для текста
+        """
         self.tokenizer = BertTokenizer.from_pretrained('bert-base-cased')
 
     def initialization(self, model):
+        """
+        Метод инициализации модели класса
+
+        :param model:  модель-классификатор Bert
+        """
         self.model = model
 
     def saving(self):
+        """
+        Метод сохранения обученной модели
+        """
         torch.save(self.model, 'src/../models/model_toxic_comment.pt')
 
     def loading(self):
+        """
+        Метод загрузки модели (в случае тестирования)
+        """
         self.model = torch.load('src/../models/model_toxic_comment.pt', map_location='cpu')
         self.model.eval()
 
     def training(self, train_data, val_data, lr, epochs):
+        """
+        Метод обучения модели класса
+
+        :param train_data: тренировочный датасет
+        :param val_data: валидационный датасет
+        :param lr: learning rate
+        :param epochs: количество эпох
+        """
         self.model.train()
         train, val = Dataset(train_data), Dataset(val_data)
 
@@ -85,6 +107,14 @@ class MyModel:
                 f'| Val Accuracy: {total_acc_val / len(val_data): .3f}')
 
     def f1_score(self, tp, fp, tn, fn):
+        """
+        Метод вычисления метрики f1_score
+
+        :param tp: кол-во true_positive
+        :param fp: кол-во false_positive
+        :param tn: кол-во true_negative
+        :param fn: кол-во false_negative
+        """
         accuracy = (tp + tn) / (tp + tn + fp + fn)
         print(f'accuracy = {accuracy}')
         precision = tp / (tp + fp)
@@ -95,6 +125,11 @@ class MyModel:
         print(f'f1_score = {f1}')
 
     def evaluate(self, test_data):
+        """
+        Метод для предсказания классов датафрейма моделью-классификатором и её оценка
+
+        :param test_data: датафрейм для предсказания
+        """
         test = Dataset(test_data)
         print(f'len_dataset: {len(test_data)}')
         test_dataloader = torch.utils.data.DataLoader(test, batch_size=1)
@@ -132,6 +167,11 @@ class MyModel:
         print(f'Test Accuracy: {total_acc_test / len(test_data): .3f}')
 
     def predict_bert(self, text):
+        """
+        Метод для предсказания класса тексту
+
+        :param text: текст для предсказания
+        """
         test_text = self.tokenizer(text, padding='max_length', max_length=50, truncation=True, return_tensors="pt")
         self.model.eval()
 
