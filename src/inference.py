@@ -3,6 +3,7 @@ import math
 from tqdm import tqdm
 import pandas as pd
 from transformers import BertTokenizer
+from lemmatize import lemmatize
 
 
 def inference(df, model):
@@ -12,6 +13,7 @@ def inference(df, model):
     :param model: модель, которая будет делать прогнозы для заполнения столбцов [class_prediction, probabilities]
     :return: датафрейм нужного вида
     """
+    df['text'] = df['text'].apply(lambda x: ' '.join(lemmatize(x)))
     tokenizer = BertTokenizer.from_pretrained('bert-base-cased')
     texts = [
         tokenizer(text, padding='max_length', max_length=512, truncation=True, return_tensors="pt")
